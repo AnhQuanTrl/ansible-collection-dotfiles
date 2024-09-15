@@ -1,0 +1,55 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  # lint:
+  #   name: Lint
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Check out the codebase.
+  #       uses: actions/checkout@v4
+  #     - name: Lint code.
+  #       uses: ansible/ansible-lint@v24
+  molecule:
+    defaults:
+      run:
+        working-directory: ansible_collections/anhquantrl/dotfiles
+    runs-on: ubuntu-latest
+    env:
+      PY_COLORS: 1
+      ANSIBLE_FORCE_COLOR: 1
+    strategy:
+      fail-fast: true
+      matrix:
+        distro:
+          - carlodepieri/docker-archlinux-ansible:latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          path: ansible_collections/anhquantrl/dotfiles
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+
+      - name: Install dependencies
+        run: |
+          sudo apt install apt-transport-https ca-certificates curl software-properties-common
+          curl -fsSL https://get.docker.com -o get-docker.sh
+          sudo sh get-docker.sh
+          python -m pip install --upgrade pip
+          pip install ansible molecule yamllint ansible-lint molecule-plugins[docker]
+
+      - name: Run role tests
+        env:
+          MOLECULE_DISTRO: "${{ matrix.distro }}"
+        run: >-
+          molecule --version &&
+          ansible --version &&
+          molecule --debug test

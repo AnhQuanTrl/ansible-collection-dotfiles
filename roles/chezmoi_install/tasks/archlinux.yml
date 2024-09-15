@@ -1,0 +1,6 @@
+---
+- name: Ensure chezmoi is installed.
+  pacman:
+    name: chezmoi
+    state: present
+  become: true

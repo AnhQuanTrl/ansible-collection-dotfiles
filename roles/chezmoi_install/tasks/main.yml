@@ -1,0 +1,5 @@
+---
+# tasks file for chezmoi_install
+- name: Installing chezmoi from package manager.
+  include_tasks: "{{ ansible_os_family|lower }}.yml"
+

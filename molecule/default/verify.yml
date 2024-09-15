@@ -1,0 +1,19 @@
+---
+- name: Verify
+  hosts: all
+  gather_facts: false
+  tasks:
+    - name: Is chezmoi exists.
+      shell: command -v chezmoi >/dev/null 2>&1
+      register: is_chezmoi_exists
+      changed_when: false
+      ignore_errors: yes
+
+    - name: Assert that chezmoi exists.
+      assert:
+        that:
+          - is_chezmoi_exists.rc == 0
+        success_msg: Chezmoi exists.
+        fail_msg: Chezmoi does not exists.
+
+

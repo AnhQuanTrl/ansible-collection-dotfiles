@@ -1,0 +1,5 @@
+---
+- name: Ensure chezmoi is installed.
+  homebrew:
+    name: chezmoi
+    state: present

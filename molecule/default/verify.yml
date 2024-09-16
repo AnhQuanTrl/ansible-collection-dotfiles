@@ -16,4 +16,17 @@
         success_msg: Chezmoi exists.
         fail_msg: Chezmoi does not exists.
 
+    - name: Is chezmoi init.
+      stat:
+        path: "/root/.local/share/chezmoi"
+      register: is_chezmoi_init
+
+    - name: Assert that chezmoi init.
+      assert:
+        that:
+          - is_chezmoi_init.stat.exists
+        success_msg: Chezmoi init.
+        fail_msg: Chezmoi not yet init.
+
+
 

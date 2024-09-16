@@ -1,6 +1,8 @@
 ---
 - name: Converge
   hosts: all
+  vars:
+    chezmoi_repo: AnhQuanTrl
   pre_tasks:
     - name: Run pacman update before installation.
       pacman:
@@ -9,4 +11,4 @@
       become: true
       when: ansible_os_family == 'Archlinux'
   roles:
-    - role: anhquantrl.dotfiles.chezmoi_install
+    - role: anhquantrl.dotfiles.chezmoi

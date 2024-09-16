@@ -1,0 +1,28 @@
+---
+# tasks file for chezmoi
+- name: Installing chezmoi from package manager.
+  include_tasks: "{{ ansible_os_family|lower }}.yml"
+
+- name: Determine chezmoi user.
+  set_fact:
+    chezmoi_user: '{{ chezmoi_user | default(ansible_user_id) }}'
+
+- debug:
+    var: chezmoi_user
+
+- name: Check user home folder.
+  user:
+    name: "{{ chezmoi_user }}"
+    state: present
+  register: chezmoi_user_register
+  check_mode: true
+
+- debug:
+    msg: "User home dir: {{ chezmoi_user_register.home }}"
+
+- name: Init chezmoi.
+  become: "{{ (chezmoi_user != ansible_user_id) | bool }}"
+  become_user: "{{ chezmoi_user }}"
+  shell:
+    cmd: "chezmoi init --apply {{ chezmoi_repo }}"
+    creates: "{{ (chezmoi_user_register.home, '.local', 'share', 'chezmoi') | path_join }}"

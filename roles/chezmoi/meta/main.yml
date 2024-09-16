@@ -1,6 +1,6 @@
 galaxy_info:
   author: AnhQuanTrl
-  role_name: chezmoi_install
+  role_name: chezmor
   description: Manage installation of Chezmoi (dotfiles manager).
   company: none
 

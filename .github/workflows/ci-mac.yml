@@ -1,0 +1,57 @@
+name: CI (MacOSX)
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+defaults:
+  run:
+    working-directory: ansible_collections/anhquantrl/dotfiles
+
+jobs:
+  test:
+    name: Test
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os:
+          - macos-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          path: ansible_collections/anhquantrl/dotfiles
+
+      - name: Install test dependencies.
+        run: |
+          brew install ansible
+
+      - name: Set up the test environment.
+        run: |
+          cp ./tests/mac/ansible.cfg ./ansible.cfg
+          cp ./tests/mac/inventory ./inventory
+          cp ./tests/mac/requirements.yml ./requirements.yml
+          ansible-galaxy install -r requirements.yml
+
+      - name: Test the playbook's syntax.
+        run: ansible-playbook ./tests/mac/test.yml --syntax-check
+
+      - name: Test the playbook.
+        run: ansible-playbook ./tests/mac/test.yml
+        env:
+          ANSIBLE_FORCE_COLOR: "1"
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Idempotence check.
+        run: |
+          idempotence=$(mktemp)
+          ansible-playbook tests/mac/test.yml | tee -a ${idempotence}
+          tail ${idempotence} | grep -q 'changed=0.*failed=0' && (echo 'Idempotence test: pass' && exit 0) || (echo 'Idempotence test: fail' && exit 1)
+        env:
+          ANSIBLE_FORCE_COLOR: "1"
+
+
+
+

@@ -1,2 +1,3 @@
 ---
 # vars file for chezmoi
+chezmoi_cmd: "{{ (ansible_machine == 'arm64') | ternary('/opt/homebrew/bin/chezmoi', 'chezmoi') }}"

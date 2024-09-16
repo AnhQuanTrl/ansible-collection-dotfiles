@@ -7,9 +7,6 @@
   set_fact:
     chezmoi_user: '{{ chezmoi_user | default(ansible_user_id) }}'
 
-- debug:
-    var: chezmoi_user
-
 - name: Check user home folder.
   user:
     name: "{{ chezmoi_user }}"
@@ -17,12 +14,9 @@
   register: chezmoi_user_register
   check_mode: true
 
-- debug:
-    msg: "User home dir: {{ chezmoi_user_register.home }}"
-
 - name: Init chezmoi.
   become: "{{ (chezmoi_user != ansible_user_id) | bool }}"
   become_user: "{{ chezmoi_user }}"
   shell:
-    cmd: "chezmoi init --apply {{ chezmoi_repo }}"
+    cmd: "{{ chezmoi_cmd }} init --apply {{ chezmoi_repo }}"
     creates: "{{ (chezmoi_user_register.home, '.local', 'share', 'chezmoi') | path_join }}"

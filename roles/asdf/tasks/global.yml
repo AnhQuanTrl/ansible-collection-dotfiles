@@ -1,0 +1,26 @@
+---
+- name: Set fact global version.
+  set_fact:
+    __asdf_global_version: "{{ item.global | default(item.versions | difference(item.delete_versions|default([])) | sort | first) }}"
+
+- name: Check if .tool-versions file exists
+  stat:
+    path: "{{ (asdf_user_register.home, '.tool-versions') | path_join }}"
+  register: tool_versions_stat
+
+- name: Check global app version.
+  lineinfile:
+    path: "{{ (asdf_user_register.home, '.tool-versions') | path_join }}"
+    regexp: "^{{ item.name }}"
+    line: "{{ item.name }} {{ __asdf_global_version }}"
+  register: global_version_register
+  check_mode: true
+  when: tool_versions_stat.stat.exists
+
+- name: Set global app version.
+  shell:
+    cmd: "source {{ asdf_source_file}} && asdf global {{ item.name }} {{ __asdf_global_version }}"
+    executable: "{{ asdf_shell }}"
+  when: not tool_versions_stat.stat.exists or global_version_register is changed
+  become_user: "{{ asdf_user }}"
+  become: "{{ (asdf_user != ansible_user_id) | bool }}"

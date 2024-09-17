@@ -1,22 +1,27 @@
-# Ansible Role: chezmoi
+# Ansible Role: asdf
 
-Manage installation of Chezmoi (dotfiles manager).
+Manage plugins configuration of `asdf`.
 
 ## Requirements
 
-This role requires a package manager to install `chezmoi` based on the managed node's OS distribution.
+This role requires `asdf` to be installed beforehand.
 
 ## Role Variables
 
 ```
-chezmoi_user: ""
-chezmoi_repo: ""
-chezmoi_homedir: ""
+asdf_plugins:
+  - name: "erlang"    # a plugin name
+    repository: ""    # a plugin repository, optional
+    versions:         # a list of versions to install
+      - 18.3
+      - 20.1
+    global: 20.1      # set as a global version, optional
+asdf_user: ""
 ```
 
 ## Dependencies
 
-`kewlfft.aur` role is required for installing asdf with Arch.
+None.
 
 ## Example Playbook
 

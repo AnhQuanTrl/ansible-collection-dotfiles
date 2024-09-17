@@ -11,3 +11,14 @@ platforms:
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup:rw
     cgroupns_mode: host
+    ulimits:
+      - nofile:65535:65535
+
+provisioner:
+  name: ansible
+  inventory:
+    host_vars:
+      # setting for the platform instance named 'cdp-arch-ansible'
+      # see "Problems with ulimits and makepkg" section below
+      instance:
+        ansible_user: ansible

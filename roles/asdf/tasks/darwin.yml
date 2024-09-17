@@ -1,0 +1,5 @@
+---
+- name: Ensure asdf is installed.
+  homebrew:
+    name: asdf
+    state: present

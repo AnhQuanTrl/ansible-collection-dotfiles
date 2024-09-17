@@ -1,0 +1,64 @@
+---
+- name: Install asdf.
+  include_tasks: "{{ ansible_os_family|lower }}.yml"
+
+- name: Determine chezmoi user.
+  set_fact:
+    asdf_user: '{{ asdf_user | default(ansible_user_id) }}'
+
+- name: Check user home folder.
+  user:
+    name: "{{ asdf_user }}"
+    state: present
+  register: asdf_user_register
+  check_mode: true
+
+- name: Set asdf dir
+  set_fact:
+    asdf_dir: "{{ asdf_dir | default((asdf_user_register.home, '.asdf') | path_join) }}"
+
+- name: Set asdf source file (
+  set_fact:
+    asdf_source_file: "{{ asdf_source_files[ansible_os_family]|default((asdf_dir, 'asdf.sh') | path_join) }}"
+
+- name: Set asdf shell
+  set_fact:
+    asdf_shell: "{{ asdf_user_register.shell }}"
+
+- debug:
+    var: asdf_dir
+
+- debug:
+    var: asdf_shell
+
+- name: Install plugins.
+  shell:
+    cmd: "source {{ asdf_source_file}} && asdf plugin add {{ item.name }} {{ item.repository | default() }}"
+    creates: "{{ asdf_dir }}/plugins/{{ item.name }}"
+    executable: "{{ asdf_shell }}"
+  loop: "{{ asdf_plugins|flatten(levels=1) }}"
+  become_user: "{{ asdf_user }}"
+  become: "{{ (asdf_user != ansible_user_id) | bool }}"
+
+- name: Install versions
+  shell:
+    cmd: "source {{ asdf_source_file}} && asdf install {{ item.0.name }} {{ item.1 }}"
+    creates: "{{ asdf_dir }}/installs/{{ item.0.name }}/{{ item.1 }}"
+    executable: "{{ asdf_shell }}"
+  loop: "{{ asdf_plugins|subelements('versions', skip_missing=True) }}"
+  become_user: "{{ asdf_user }}"
+  become: "{{ (asdf_user != ansible_user_id) | bool }}"
+
+- name: Uninstall versions
+  shell:
+    cmd: "source {{ asdf_source_file}} && asdf uninstall {{ item.0.name }} {{ item.1 }}"
+    removes: "{{ asdf_dir }}/installs/{{ item.0.name }}/{{ item.1 }}"
+    executable: "{{ asdf_shell }}"
+  loop: "{{ asdf_plugins|subelements('delete_versions', skip_missing=True) }}"
+  become_user: "{{ asdf_user }}"
+  become: "{{ (asdf_user != ansible_user_id) | bool }}"
+
+- name: "set global app versions"
+  include_tasks: global.yml
+  when: item.versions is defined
+  loop: "{{ asdf_plugins|flatten(levels=1) }}"

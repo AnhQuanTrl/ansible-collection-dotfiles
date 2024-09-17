@@ -3,6 +3,13 @@
   hosts: all
   vars:
     chezmoi_repo: AnhQuanTrl
+    asdf_plugins:
+      - name: nodejs
+        repository: https://github.com/asdf-vm/asdf-nodejs.git
+        versions:
+          - "20.17.0"
+        global: "20.17.0"
+
   pre_tasks:
     - name: Run pacman update before installation.
       pacman:
@@ -10,5 +17,37 @@
         upgrade: yes
       become: true
       when: ansible_os_family == 'Archlinux'
+
+    - name: Install deps (Archlinux)
+      pacman:
+        name:
+          - git
+          - base-devel
+          - zsh
+        state: present
+      become: true
+      when: ansible_os_family == 'Archlinux'
+
+    - name: Ensure user shell is zsh.
+      become: true
+      user:
+        name: ansible
+        shell: /bin/zsh
+
+    - name: Clone yay
+      git:
+        repo: https://aur.archlinux.org/yay.git
+        dest: "/home/ansible/yay"
+        update: true
+      when: ansible_os_family == 'Archlinux'
+
+    - name: Build and install yay
+      command:
+        chdir: "/home/ansible/yay"
+        cmd: "makepkg -sfi --noconfirm"
+        creates: /usr/bin/yay
+      when: ansible_os_family == 'Archlinux'
+
   roles:
     - role: anhquantrl.dotfiles.chezmoi
+    - role: anhquantrl.dotfiles.asdf

@@ -18,7 +18,7 @@
 
     - name: Is chezmoi init.
       stat:
-        path: "/root/.local/share/chezmoi"
+        path: "/home/ansible/.local/share/chezmoi"
       register: is_chezmoi_init
 
     - name: Assert that chezmoi init.
@@ -27,6 +27,23 @@
           - is_chezmoi_init.stat.exists
         success_msg: Chezmoi init.
         fail_msg: Chezmoi not yet init.
+
+    - name: Fetch nodejs global version.
+      lineinfile:
+        path: /home/ansible/.tool-versions
+        regexp: "^nodejs"
+        line: "nodejs 20.17.0"
+      register: global_version_register
+      check_mode: true
+
+    - name: Assert nodejs global version.
+      assert:
+        that:
+          - global_version_register is not changed
+        success_msg: Global nodejs version is set.
+        fail_msg: Global nodejs version is not set.
+
+
 
 
 

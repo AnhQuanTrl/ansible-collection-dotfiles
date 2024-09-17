@@ -1,0 +1,6 @@
+---
+# vars file for chezmoi
+asdf_source_files:
+  Archlinux: /opt/asdf-vm/asdf.sh
+  Darwin: "$(/opt/homebrew/bin/brew --prefix asdf)/libexec/asdf.sh"
+

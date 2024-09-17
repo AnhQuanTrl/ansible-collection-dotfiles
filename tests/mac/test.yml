@@ -4,6 +4,13 @@
 
   vars:
     chezmoi_repo: AnhQuanTrl
+    asdf_plugins:
+      - name: nodejs
+        repository: https://github.com/asdf-vm/asdf-nodejs.git
+        versions:
+          - "20.17.0"
+        global: "20.17.0"
 
   roles:
     - anhquantrl.dotfiles.chezmoi
+    - anhquantrl.dotfiles.asdf

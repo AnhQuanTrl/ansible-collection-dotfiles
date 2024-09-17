@@ -1,0 +1,12 @@
+---
+- name: Ensure yay is available.
+  command: which yay
+  register: yay_check
+  failed_when: yay_check.rc != 0
+  changed_when: false
+
+- name: Ensure asdf is installed.
+  kewlfft.aur.aur:
+    name: asdf-vm
+    state: present
+    use: yay

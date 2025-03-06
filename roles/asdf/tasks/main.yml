@@ -4,7 +4,7 @@
 
 - name: Determine chezmoi user.
   set_fact:
-    asdf_user: '{{ asdf_user | default(ansible_user_id) }}'
+    asdf_user: "{{ asdf_user | default(ansible_user_id) }}"
 
 - name: Check user home folder.
   user:
@@ -30,6 +30,12 @@
 
 - debug:
     var: asdf_shell
+
+- debug:
+    var: asdf_user
+
+- debug:
+    var: ansible_user_id
 
 - name: Install plugins.
   shell:

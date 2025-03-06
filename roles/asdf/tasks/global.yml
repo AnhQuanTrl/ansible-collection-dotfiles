@@ -19,7 +19,7 @@
 
 - name: Set global app version.
   shell:
-    cmd: "source {{ asdf_source_file}} && asdf global {{ item.name }} {{ __asdf_global_version }}"
+    cmd: "source {{ asdf_source_file}} && asdf set -u {{ item.name }} {{ __asdf_global_version }}"
     executable: "{{ asdf_shell }}"
   when: not tool_versions_stat.stat.exists or global_version_register is changed
   become_user: "{{ asdf_user }}"
